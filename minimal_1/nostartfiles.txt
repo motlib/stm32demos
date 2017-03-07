@@ -1,0 +1,57 @@
+
+main.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <myvectors>:
+   0:	00 08 00 20 31 00 00 00 11 00 00 00 13 00 00 00     ... 1...........
+
+00000010 <nmi_handler>:
+  10:	e7fe      	b.n	10 <nmi_handler>
+
+00000012 <hardfault_handler>:
+  12:	e7fe      	b.n	12 <hardfault_handler>
+
+00000014 <delay>:
+  14:	b082      	sub	sp, #8
+  16:	2300      	movs	r3, #0
+  18:	9301      	str	r3, [sp, #4]
+  1a:	f644 631f 	movw	r3, #19999	; 0x4e1f
+  1e:	9a01      	ldr	r2, [sp, #4]
+  20:	429a      	cmp	r2, r3
+  22:	d802      	bhi.n	2a <delay+0x16>
+  24:	9b01      	ldr	r3, [sp, #4]
+  26:	3301      	adds	r3, #1
+  28:	e7f6      	b.n	18 <delay+0x4>
+  2a:	b002      	add	sp, #8
+  2c:	4770      	bx	lr
+
+Disassembly of section .text.startup:
+
+00000030 <main>:
+  30:	b508      	push	{r3, lr}
+  32:	4b0e      	ldr	r3, [pc, #56]	; (6c <main+0x3c>)
+  34:	681a      	ldr	r2, [r3, #0]
+  36:	f042 0204 	orr.w	r2, r2, #4
+  3a:	601a      	str	r2, [r3, #0]
+  3c:	681a      	ldr	r2, [r3, #0]
+  3e:	f042 0208 	orr.w	r2, r2, #8
+  42:	601a      	str	r2, [r3, #0]
+  44:	f5a3 3384 	sub.w	r3, r3, #67584	; 0x10800
+  48:	2202      	movs	r2, #2
+  4a:	3b18      	subs	r3, #24
+  4c:	601a      	str	r2, [r3, #0]
+  4e:	4c08      	ldr	r4, [pc, #32]	; (70 <main+0x40>)
+  50:	6823      	ldr	r3, [r4, #0]
+  52:	f043 0301 	orr.w	r3, r3, #1
+  56:	6023      	str	r3, [r4, #0]
+  58:	f7ff ffdc 	bl	14 <delay>
+  5c:	6823      	ldr	r3, [r4, #0]
+  5e:	f023 0301 	bic.w	r3, r3, #1
+  62:	6023      	str	r3, [r4, #0]
+  64:	f7ff ffd6 	bl	14 <delay>
+  68:	e7f1      	b.n	4e <main+0x1e>
+  6a:	bf00      	nop
+  6c:	40021018 	.word	0x40021018
+  70:	4001080c 	.word	0x4001080c

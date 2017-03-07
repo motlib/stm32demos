@@ -8,9 +8,8 @@ CP = arm-none-eabi-objcopy
 
 LKR_SCRIPT = stm32.ld
 
-CFLAGS  = -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -Wall -Wpedantic
-LFLAGS  = -nostartfiles -T$(LKR_SCRIPT)
-#LFLAGS  = -T$(LKR_SCRIPT)
+CFLAGS  = -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -Wall
+LFLAGS  =  -T$(LKR_SCRIPT)
 
 OBJS=main.o
 

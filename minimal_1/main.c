@@ -14,7 +14,7 @@
 #define SRAM_SIZE       20*1024     
 #define SRAM_END        (SRAM_BASE + SRAM_SIZE)
 
-/* LED connected to PIN 8 of GPIOA */
+/* LED connected to PIN A0 of GPIOA */
 #define LED_PIN         0
 /* output mode: push-pull + 50MHz */
 #define OUTPUT_MODE     (0x10|0x03) 
@@ -49,39 +49,38 @@ int main(void);
 
 // Define the vector table
 unsigned int *myvectors[4] __attribute__ ((section("vectors"))) = {
-    (unsigned int *) STACK_TOP,         // stack pointer
-    (unsigned int *) main,              // code entry point
-    (unsigned int *) nmi_handler,       // NMI handler (not really)
-    (unsigned int *) hardfault_handler  // hard fault handler
+    /* stack pointer */
+    (unsigned int *) STACK_TOP,         
+    /* code entry point */
+    (unsigned int *) main,              
+    /* NMI handler (not really) */
+    (unsigned int *) nmi_handler,       
+    /* hard fault handler */
+    (unsigned int *) hardfault_handler  
 };
 
+
+volatile int test = 0;
 
 int main()
 {
     /* enable clock on GPIOA peripheral */
     RCC_APB2ENR |= (1u << 2u);
-    /* enable clock on GPIOB peripheral */
-    RCC_APB2ENR |= (1u << 3u);
-    
 
-    /* set LED pin output mode */
-    
-//    GPIOA_CRL |= OUTPUT_MODE << ((LED_PIN) << 2); // if pins 0 to 7
-//    GPIOA_CRL |= 
-    //GPIOB_CRH |= OUTPUT_MODE << ((LED_PIN-8) << 2); // if pins 8 to 15
-    
-    GPIOA_CRL = (0x2 << 0u); // MODE: 0x2 = 2MHz
-    //GPIOA_CRL |= (0x0 << 18u); // CNF: 0x0 = general purpose push / pull
-
-    //GPIOB_CRH |= (0x2 << 16u); // MODE: 0x2 = 2MHz
-    //GPIOB_CRH |= (0x0 << 18u); // CNF: 0x0 = general purpose push / pull
+    /* Attention: Initial value of some bits is 1, so only or-ing the
+     * set bits does not work! So first clear them, then set them. */
+    GPIOA_CRL &= ~0xf;
+    /* MODE: 0x2 = 2MHz, CNF: 0x0 = general output with push/pull */
+    GPIOA_CRL |= (0x2 << 0u); 
     
     while(1)
     {
-	GPIOA_ODR |= (1u << LED_PIN);  // set LED pin high
+	/* set LED pin high */
+	GPIOA_ODR |= (1u << LED_PIN);  
 	delay();
 	
-	GPIOA_ODR &= ~(1u << LED_PIN);  // clear LED pin (low)
+	/* clear LED pin (low) */
+	GPIOA_ODR &= ~(1u << LED_PIN);  
 	delay();
     }
 }
@@ -93,6 +92,8 @@ void delay(void)
 
     for (i = 0; i < 20000; i++)
 	;
+
+    test += 1;
 }
 
 void nmi_handler(void)
